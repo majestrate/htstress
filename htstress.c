@@ -242,7 +242,7 @@ static void* worker(void* arg)
 
 						c = inbuf[9 - ec->offs];
 
-						if (c == '4' || c == '5')
+						if (c != '2')
 							ec->flags |= BAD_REQUEST;
 					}
 
@@ -273,8 +273,10 @@ static void* worker(void* arg)
 						return NULL;
 					}
 
-					if (ticks && m % ticks == 0)
-						printf("%d requests\n", m);
+					if (ticks && m % ticks == 0) {
+						fprintf(stdout, ".");
+            fflush(stdout);
+          }
 
 					init_conn(efd, ec);
 				}
@@ -390,11 +392,14 @@ int main(int argc, char* argv[])
 	ticks = max_requests / 10;
 
 	signal(SIGINT, &sigint_handler);
-
+  
 	if (!max_requests) {
 		ticks = 1000;
 		printf("[Press Ctrl-C to finish]\n");
-	}
+	} else {
+    fprintf(stdout, "Benchmark begin with %d connections via %d threads ", concurrency * num_threads ,  num_threads);
+    fflush(stdout);
+  }
 
 	start_time();
 
@@ -407,7 +412,7 @@ int main(int argc, char* argv[])
 	/* output result */
 	delta = tve.tv_sec - tv.tv_sec + ((double)(tve.tv_usec - tv.tv_usec)) / 1e6;
 
-	printf("\n"
+	printf("\n\n"
 			"requests:      %"PRIu64"\n"
 			"good requests: %"PRIu64" [%d%%]\n"
 			"bad requests:  %"PRIu64" [%d%%]\n"
