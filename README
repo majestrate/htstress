@@ -14,7 +14,7 @@ essential in bechmarking highload services (>5K rps).
 Build
 *************************************************
 htstress does not require any libs. Just run 
-./build.sh
+make
 
 Usage
 *************************************************

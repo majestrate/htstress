@@ -46,6 +46,7 @@ OF SUCH DAMAGE.
 #include <signal.h>
 #include <sys/epoll.h>
 #include <inttypes.h>
+#include <unistd.h>
 
 #define HTTP_REQUEST_PREFIX "http://"
 
@@ -153,7 +154,7 @@ static void init_conn(int efd, struct econn* ec) {
 
 static void* worker(void* arg) 
 {
-	int efd, fd, ret, nevts, n, m;
+	int efd, ret, nevts, n, m;
 	struct epoll_event evts[MAX_EVENTS];
 	char inbuf[INBUFSIZE], c;
 	struct econn ecs[concurrency], *ec;
@@ -205,7 +206,10 @@ static void* worker(void* arg)
 				if (ret > 0) {
 
 					if (debug & HTTP_REQUEST_DEBUG)
-						write(2, outbuf+ ec->offs, outbufsize - ec->offs);
+					{
+						int unused = write(2, outbuf+ ec->offs, outbufsize - ec->offs);
+						(void) unused;
+					}
 
 					ec->offs += ret;
 
@@ -247,8 +251,10 @@ static void* worker(void* arg)
 					}
 
 					if (debug & HTTP_RESPONSE_DEBUG)
-						write(2, inbuf, ret);
-
+					{
+						int unused =	write(2, inbuf, ret);
+						(void) unused;
+					}
 					ec->offs += ret;
 
 				}
@@ -310,6 +316,7 @@ int main(int argc, char* argv[])
 	char *host = NULL;
 	struct hostent *h;
 
+	(void) rps; /** unused variable */
 	if (argc == 1)
 		print_usage();
 
