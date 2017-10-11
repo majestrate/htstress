@@ -81,7 +81,7 @@ volatile uint64_t bad_requests = 0;
 volatile uint64_t in_bytes = 0;
 volatile uint64_t out_bytes = 0;
 
-uint64_t ticks;
+uint64_t ticks = 0;
 
 int debug = 0;
 
@@ -242,7 +242,7 @@ static void* worker(void* arg)
 
 						c = inbuf[9 - ec->offs];
 
-						if (c != '2')
+						if (c != '2' || c != '3')
 							ec->flags |= BAD_REQUEST;
 					}
 
@@ -273,9 +273,10 @@ static void* worker(void* arg)
 						return NULL;
 					}
 
+          /** progress report */
 					if (ticks && m % ticks == 0) {
 						fprintf(stdout, ".");
-            fflush(stdout);
+						fflush(stdout);
           }
 
 					init_conn(efd, ec);
@@ -397,9 +398,9 @@ int main(int argc, char* argv[])
 		ticks = 1000;
 		printf("[Press Ctrl-C to finish]\n");
 	} else {
-    fprintf(stdout, "Benchmark begin with %d connections via %d threads ", concurrency * num_threads ,  num_threads);
-    fflush(stdout);
-  }
+		fprintf(stdout, "Benchmark begin with %d connections via %d threads ", concurrency * num_threads ,	num_threads);
+		fflush(stdout);
+	}
 
 	start_time();
 
